@@ -31,10 +31,10 @@ print("Using data [%s]" % (name))
 # ##### DATA: Target data and generator input data
 
 def get_distribution_sampler(mu, sigma):
-    return lambda n: torch.Tensor(np.random.normal(mu, sigma, (1, n)))  # Gaussian
+    return lambda n: torch.Tensor(np.random.normal(mu, sigma, (1, n)))  # Gaussian   #np.random.normal(均值，标准差，shape)，随机化正态分布
 
 def get_generator_input_sampler():
-    return lambda m, n: torch.rand(m, n)  # Uniform-dist data into generator, _NOT_ Gaussian
+    return lambda m, n: torch.rand(m, n)  # Uniform-dist data into generator, _NOT_ Gaussian   #[0, 1)的均匀分布
 
 # ##### MODELS: Generator model and discriminator model
 
@@ -68,21 +68,21 @@ class Discriminator(nn.Module):
         return self.f(self.map3(x))
 
 def extract(v):
-    return v.data.storage().tolist()
+    return v.data.storage().tolist()    #？？？
 
 def stats(d):
     return [np.mean(d), np.std(d)]
 
 def get_moments(d):
     # Return the first 4 moments of the data provided
-    mean = torch.mean(d)
+    mean = torch.mean(d)   #均值  #不指定任何参数就是所有元素的算术平均值，指定参数可以计算每一行或者每一列的算术平均数
     diffs = d - mean
-    var = torch.mean(torch.pow(diffs, 2.0))
-    std = torch.pow(var, 0.5)
-    zscores = diffs / std
-    skews = torch.mean(torch.pow(zscores, 3.0))
-    kurtoses = torch.mean(torch.pow(zscores, 4.0)) - 3.0  # excess kurtosis, should be 0 for Gaussian
-    final = torch.cat((mean.reshape(1,), std.reshape(1,), skews.reshape(1,), kurtoses.reshape(1,)))
+    var = torch.mean(torch.pow(diffs, 2.0))  #方差  #torch.pow(a, 2)：求a的每个元素的2次方
+    std = torch.pow(var, 0.5)                #标准差
+    zscores = diffs / std                    #标准正态分布  # yi=(xi-x均值)/标准差~N(0,1)
+    skews = torch.mean(torch.pow(zscores, 3.0))  # 1/n *(yi的3次方)
+    kurtoses = torch.mean(torch.pow(zscores, 4.0)) - 3.0  # excess kurtosis, should be 0 for Gaussian  超过的峰度，对于高斯函数应该是0
+    final = torch.cat((mean.reshape(1,), std.reshape(1,), skews.reshape(1,), kurtoses.reshape(1,)))  #.reshape(1,-1),作用？？？
     return final
 
 def decorate_with_diffs(data, exponent, remove_raw_data=False):
