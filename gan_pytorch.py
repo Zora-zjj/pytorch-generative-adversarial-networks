@@ -85,7 +85,7 @@ def get_moments(d):
     final = torch.cat((mean.reshape(1,), std.reshape(1,), skews.reshape(1,), kurtoses.reshape(1,)))  #reshape(1,-1)  作用？？？？
     return final
 
-def decorate_with_diffs(data, exponent, remove_raw_data=False):
+def decorate_with_diffs(data, exponent, remove_raw_data=False):   #decorate装饰
     mean = torch.mean(data.data, 1, keepdim=True)
     mean_broadcast = torch.mul(torch.ones(data.size()), mean.tolist()[0][0])
     diffs = torch.pow(data - Variable(mean_broadcast), exponent)
